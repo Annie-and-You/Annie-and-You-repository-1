@@ -29,9 +29,9 @@ export function drawTracking(canvas: HTMLCanvasElement, frame: TrackingFrame | n
     hand.landmarks.forEach((p, index) => {
       const x = (1 - p.x) * canvas.width;
       const y = p.y * canvas.height;
-      ctx.fillStyle = index === 8 ? '#ffffff' : '#142b43';
-      ctx.beginPath(); ctx.arc(x, y, index === 8 ? 7 : 3.5, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
-      if (index === 8) { ctx.beginPath(); ctx.arc(x, y, 17, 0, Math.PI * 2); ctx.stroke(); }
+      const fingertip = [4, 8, 12, 16, 20].includes(index);
+      ctx.fillStyle = fingertip ? '#ffffff' : '#142b43';
+      ctx.beginPath(); ctx.arc(x, y, fingertip ? 5 : 3.5, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
     });
   }
 }

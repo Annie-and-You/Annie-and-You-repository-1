@@ -1,5 +1,7 @@
 # S2 单手按钮与推子实施计划
 
+本文件记录首次 S2 双指捏合实现。后续用户试用要求改为五指向前聚拢、掌心定位；当前操作及阈值以 [INTERFACES](../../INTERFACES.md#4-交互事件与控件) 为准，试验反馈与验证见 [PROGRESS](../../PROGRESS.md)。以下原始参数保留为历史决定。
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** 在现有摄像头实验台上加入可移动、缩放的二维面板、两个测试按钮和一个推子，验证单手捏合的完整生命周期。

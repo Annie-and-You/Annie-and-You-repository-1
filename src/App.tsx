@@ -10,12 +10,12 @@ export default function App() {
       </header>
       <main id="main">
         <div className="page-heading">
-          <div><h1>捏合，让控件回应。</h1><p className="intro">先用一只手，试试按钮和推子的手感。</p></div>
-          <div className="experiment-label"><span aria-hidden="true">⌁</span><p>单手交互实验<small>指向、捏合、移动、松开</small></p></div>
+          <div><h1>聚拢五指，抓住控件。</h1><p className="intro">用掌心定位，五个指尖向前聚拢，张开手释放。</p></div>
+          <div className="experiment-label"><span aria-hidden="true">⌁</span><p>单手交互实验<small>张开、聚拢、移动、释放</small></p></div>
         </div>
         <CameraExperiment />
         <section className="next-note" aria-label="实验说明">
-          <div><span className="note-icon" aria-hidden="true">◎</span><p><strong>先张开，再捏合</strong><span>让手腕和全部指尖入镜。按钮在原区域内松开生效；抓住推子后可移出控件，停止或丢手会释放抓取。</span></p></div>
+          <div><span className="note-icon" aria-hidden="true">◎</span><p><strong>先张开五指，再向前聚拢</strong><span>让手腕和全部指尖入镜，用掌心圆环对准控件。按钮张开手时生效；抓住推子后可移出控件，停止或丢手会释放抓取。</span></p></div>
           <p className="scope-note">当前为二维单手实验。<br />音乐、桌面透视与双手独立控制尚未接入。</p>
         </section>
       </main>

@@ -125,11 +125,11 @@ export function CameraExperiment() {
         <div className="visual-workspace">
           <div className="camera-view" hidden={mode !== 'camera'} style={{ aspectRatio: settings?.width && settings.height ? `${settings.width} / ${settings.height}` : '16 / 9' }}>
             <video ref={video} muted playsInline aria-label="镜像摄像头画面" />
-            <canvas ref={canvas} aria-label="手部骨架与食指尖位置" role="img" />
+            <canvas ref={canvas} aria-label="手部骨架与五个指尖位置" role="img" />
             <div className="interaction-host" ref={setSurfaceHost} />
             <div className="view-label"><span>镜像画面</span><span>{settings?.width ? `${settings.width} × ${settings.height}` : '等待视频输入'}</span></div>
             {!busy && <div className="camera-empty"><div className="capture-symbol" aria-hidden="true"><span /><i /><b /><em /></div><h2>{status.status === 'error' ? '先检查摄像头连接' : '你的动作，从这里开始'}</h2><p>{status.status === 'error' ? '根据下方提示处理，再重新开启。' : '开启摄像头，先让一只手完整进入画面。'}</p><span className="privacy-tag">仅本地处理，无需录制</span></div>}
-            <div className="view-legend"><span><i /> 手部骨架</span><span><i /> 食指尖</span><span>最多 {numHands} 只手</span></div>
+            <div className="view-legend"><span><i /> 手部骨架</span><span><i /> 五个指尖</span><span>最多 {numHands} 只手</span></div>
           </div>
           {mode === 'mock' && <TrackingPreview frame={mockFrame} />}
           <div className="workspace-message" role="status"><span className="message-icon" aria-hidden="true">{status.status === 'error' && mode === 'camera' ? '!' : 'i'}</span><p>{mode === 'mock' ? '模拟样本只检查骨架与界面，不代表真实识别表现。' : status.error ?? notice}</p></div>

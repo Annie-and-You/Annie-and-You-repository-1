@@ -7,9 +7,10 @@ import { ControlLab } from '../controls/control-lab';
 const mapping = createRectMapping({ x: 0, y: 0, width: 1, height: 1 })!;
 function hand(x = .5, ratio = .8, handedness: HandObservation['handedness'] = 'Left', y = .5): HandObservation {
   const landmarks: Landmark[] = Array.from({ length: 21 }, () => ({ x, y, z: 0 }));
-  landmarks[0] = { x, y: y + .2, z: 0 }; landmarks[5] = { x: x - .06, y: y + .1, z: 0 };
-  landmarks[17] = { x: x + .06, y: y + .1, z: 0 }; landmarks[9] = { x, y: y + .08, z: 0 };
-  landmarks[13] = { x: x + .03, y: y + .1, z: 0 }; landmarks[4] = { x: x + .12 * ratio, y, z: 0 };
+  landmarks[0] = { x, y: y + .1, z: 0 }; landmarks[5] = { x: x - .06, y, z: 0 };
+  landmarks[17] = { x: x + .06, y: y - .04, z: 0 }; landmarks[9] = { x, y: y - .04, z: 0 };
+  landmarks[13] = { x, y: y - .02, z: 0 };
+  [4, 8, 12, 16, 20].forEach((index, i) => { landmarks[index] = { x: x + (i - 2) * .06 * ratio, y: y - .14, z: 0 }; });
   return { landmarks, handedness, handednessScore: .95 };
 }
 const frame = (t: number, hands: readonly HandObservation[], extra: Partial<TrackingFrame> = {}): TrackingFrame => ({ frameId: t, sampledAtMs: t, receivedAtMs: t + 5, inferenceMs: 5, sourceSize: { width: 1000, height: 1000 }, hands, ...extra });
@@ -91,11 +92,24 @@ describe('single hand lifecycle', () => {
     expect(pointer.process(frame(120, [hand(.7, .1)]), mapping)).toEqual([]);
     expect(pointer.process(frame(300, [hand(.5, .1)]), mapping)[0]).toMatchObject({ phase: 'cancel', reason: 'tracking-lost' });
   });
-  it('smooths positions by elapsed time and mirrors the selected fingertip once', () => {
+  it('smooths positions by elapsed time and mirrors the palm once', () => {
     const pointer = new SingleHandPointer();
     pointer.process(frame(0, [hand(.5)]), mapping);
     pointer.process(frame(45, [hand(.6)]), mapping);
     expect(pointer.snapshot.point!.u).toBeCloseTo(.5 - .1 * (1 - Math.exp(-1)));
+  });
+  it('keeps the palm cursor fixed when fingertips converge and ignores a two-finger pinch', () => {
+    const pointer = new SingleHandPointer();
+    pointer.process(frame(0, [hand()]), mapping); pointer.process(frame(40, [hand()]), mapping);
+    const point = pointer.snapshot.point;
+    const openHand = hand();
+    const twoFinger = { ...openHand, landmarks: openHand.landmarks.map((p, i) => i === 4 || i === 8 ? { x: .5, y: .5, z: 0 } : p) };
+    pointer.process(frame(60, [twoFinger]), mapping);
+    expect(pointer.process(frame(120, [twoFinger]), mapping)[0]!.phase).toBe('hover');
+    pointer.process(frame(140, [hand(.5, .1)]), mapping);
+    expect(pointer.process(frame(200, [hand(.5, .1)]), mapping)[0]!.phase).toBe('down');
+    expect(pointer.snapshot.point!.u).toBeCloseTo(point!.u);
+    expect(pointer.snapshot.point!.v).toBeCloseTo(point!.v);
   });
   it('external cancellation releases capture and requires reopening', () => {
     const pointer = new SingleHandPointer(); grab(pointer);

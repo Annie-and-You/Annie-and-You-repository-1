@@ -1,12 +1,19 @@
 import type { Landmark, Size } from '../shared/contracts';
 
-export const GESTURE_PARAMETERS = { closeRatio: .32, openRatio: .52, closeMs: 60, openMs: 40, smoothingMs: 45, lostMs: 150 } as const;
+export const GESTURE_PARAMETERS = { closeRatio: .75, openRatio: 1.15, closeMs: 60, openMs: 40, smoothingMs: 45, lostMs: 150 } as const;
 
+/** Five-tip cluster diameter / palm size, measured in source pixels. */
 export function pinchRatio(points: readonly Landmark[], size: Size): number | null {
   if (points.length !== 21 || !Number.isFinite(size.width) || !Number.isFinite(size.height) || size.width <= 0 || size.height <= 0) return null;
+  if (!points.every((p) => Number.isFinite(p.x) && Number.isFinite(p.y))) return null;
   const distance = (a: Landmark, b: Landmark) => Math.hypot((a.x - b.x) * size.width, (a.y - b.y) * size.height);
-  const palm = distance(points[5]!, points[17]!);
-  const ratio = distance(points[4]!, points[8]!) / palm;
+  const palm = Math.max(distance(points[5]!, points[17]!), distance(points[0]!, points[9]!));
+  const tips = [4, 8, 12, 16, 20].map((i) => points[i]!);
+  let spread = 0;
+  for (let a = 0; a < tips.length; a++) {
+    for (let b = a + 1; b < tips.length; b++) spread = Math.max(spread, distance(tips[a]!, tips[b]!));
+  }
+  const ratio = spread / palm;
   return palm >= Math.min(size.width, size.height) * .02 && Number.isFinite(ratio) ? ratio : null;
 }
 

@@ -11,7 +11,7 @@ export interface InteractionLabHandle {
 }
 
 const initialRect: VideoRect = { x: .08, y: .18, width: .84, height: .66 };
-const states = { 'no-hand': '先伸入一只手', ambiguous: '两手接近，请先留一只手', 'waiting-open': '先张开拇指与食指', hover: '已就绪，捏合后松开', pressed: '捏合中，松开即可释放' };
+const states = { 'no-hand': '先伸入一只手', ambiguous: '两手接近，请先留一只手', 'waiting-open': '先张开五指', hover: '已就绪，五个指尖向前聚拢即可抓取', pressed: '五指已抓拢，张开手即可释放' };
 const reasons: Record<CancelReason, string> = { 'tracking-lost': '追踪中断', 'ambiguous-hand': '手部归属不明确', 'mapping-changed': '面板或画面尺寸改变', 'input-takeover': '鼠标或键盘接管', 'session-stopped': '会话停止' };
 
 export function InteractionLab({ ref, host, enabled, sourceSize }: { ref: Ref<InteractionLabHandle>; host: HTMLDivElement | null; enabled: boolean; sourceSize: Size }) {
@@ -116,9 +116,9 @@ export function InteractionLab({ ref, host, enabled, sourceSize }: { ref: Ref<In
   const names: Record<ControlId, string> = { 'test-a': '按钮 A', 'test-b': '按钮 B', level: '测试推子' };
 
   return <div className="interaction-lab">
-    {host && enabled && createPortal(<svg className={`interaction-overlay ${adjusting ? 'is-adjusting' : ''}`} viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="xMidYMid meet" role="img" aria-label="单手交互面板，支持捏合或鼠标操作" onPointerDown={(event) => mouseEvent(event, 'down')} onPointerMove={(event) => mouseEvent(event, 'move')} onPointerUp={(event) => mouseEvent(event, 'up')} onPointerCancel={() => cancel('input-takeover')} onLostPointerCapture={() => { if (mouse.current !== null) cancel('input-takeover'); }}>
+    {host && enabled && createPortal(<svg className={`interaction-overlay ${adjusting ? 'is-adjusting' : ''}`} viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="xMidYMid meet" role="img" aria-label="单手交互面板，支持五指抓拢或鼠标操作" onPointerDown={(event) => mouseEvent(event, 'down')} onPointerMove={(event) => mouseEvent(event, 'move')} onPointerUp={(event) => mouseEvent(event, 'up')} onPointerCancel={() => cancel('input-takeover')} onLostPointerCapture={() => { if (mouse.current !== null) cancel('input-takeover'); }}>
       <rect {...panel} rx={10} className="surface-outline" />
-      <text x={panel.x + panel.width * .07} y={panel.y + panel.height * .09} fontSize={textSize * .65} className="surface-caption">{adjusting ? '调整面板，完成后先张开手' : '单手捏合实验'}</text>
+      <text x={panel.x + panel.width * .07} y={panel.y + panel.height * .09} fontSize={textSize * .65} className="surface-caption">{adjusting ? '调整面板，完成后先张开手' : '五指抓拢实验'}</text>
       {LAB_LAYOUT.map(({ id, bounds, kind }) => {
         const origin = at({ u: bounds.u, v: bounds.v });
         const width = bounds.width * panel.width, height = bounds.height * panel.height;
@@ -131,12 +131,12 @@ export function InteractionLab({ ref, host, enabled, sourceSize }: { ref: Ref<In
       })}
       {cursor && !adjusting && <g className={`interaction-cursor ${view.pointer.state === 'pressed' ? 'is-pinched' : ''}`}><circle cx={cursor.x} cy={cursor.y} r={w / 75} /><circle cx={cursor.x} cy={cursor.y} r={w / 250} /></g>}
     </svg>, host)}
-    <div className="interaction-heading"><h2>捏合实验</h2><button className="text-button" disabled={!enabled} aria-expanded={adjusting} onClick={() => { cancel('mapping-changed'); setAdjusting(!adjusting); }}>{adjusting ? '完成调整' : '调整面板'}</button></div>
-    <p className={`gesture-state ${view.pointer.state === 'pressed' ? 'is-pinched' : ''}`} role="status">{!enabled ? '开启摄像头后，先让一只手完整入镜。' : adjusting ? '调整时暂停手势，完成后重新张开手。' : states[view.pointer.state]}{enabled && view.pointer.ratio !== null && <span>捏合比 {view.pointer.ratio.toFixed(2)}</span>}</p>
+    <div className="interaction-heading"><h2>五指抓拢实验</h2><button className="text-button" disabled={!enabled} aria-expanded={adjusting} onClick={() => { cancel('mapping-changed'); setAdjusting(!adjusting); }}>{adjusting ? '完成调整' : '调整面板'}</button></div>
+    <p className={`gesture-state ${view.pointer.state === 'pressed' ? 'is-pinched' : ''}`} role="status">{!enabled ? '开启摄像头后，先让一只手完整入镜。' : adjusting ? '调整时暂停手势，完成后重新张开手。' : states[view.pointer.state]}{enabled && view.pointer.ratio !== null && <span>聚拢比 {view.pointer.ratio.toFixed(2)}</span>}</p>
     {adjusting && <fieldset className="surface-settings"><legend>面板位置与大小</legend>{([
       ['x', '水平位置', 0, 1 - rect.width], ['y', '垂直位置', 0, 1 - rect.height], ['width', '面板宽度', .4, 1 - rect.x], ['height', '面板高度', .4, 1 - rect.y],
     ] as const).map(([key, label, min, max]) => <label key={key}>{label}<input type="range" min={min} max={max} step={.01} value={rect[key]} onChange={(event) => updateRect({ ...rect, [key]: Number(event.target.value) })} /></label>)}</fieldset>}
-    <p className="gesture-instructions">食指指向控件，拇指与食指捏合；按钮松开生效，推子捏住拖动。丢手或归属不明确会取消，重新张开后再操作。</p>
+    <p className="gesture-instructions">先张开五指，用掌心圆环对准控件，再把五个指尖向前聚拢。按钮张开手时生效，推子抓拢后移动；丢手或归属不明确会取消，重新张开后再操作。</p>
     <div className="manual-controls" role="group" aria-label="鼠标与键盘后备操作" onPointerDownCapture={(event) => { cancel('input-takeover'); manualPointer.current = event.pointerId; }} onKeyDownCapture={(event) => { if ([' ', 'Enter', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Home', 'End', 'PageUp', 'PageDown'].includes(event.key)) { cancel('input-takeover'); manualKey.current = true; } }}><button onClick={() => manualButton('test-a')}>按钮 A <output>{view.controls.a}</output></button><button onClick={() => manualButton('test-b')}>按钮 B <output>{view.controls.b}</output></button><label>测试推子 <output>{Math.round(view.controls.level * 100)}%</output><input aria-label="测试推子" type="range" min={0} max={1} step={.01} value={view.controls.level} onChange={(event) => manualLevel(Number(event.target.value))} /></label></div>
     <p className="interaction-note">{view.controls.lastCancel ? `最近取消：${reasons[view.controls.lastCancel]}。` : '下方可用鼠标或键盘对照操作。'} 计数包含手势与后备操作；尚未连接音乐。</p>
   </div>;

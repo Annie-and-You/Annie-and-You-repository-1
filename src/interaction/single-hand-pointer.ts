@@ -81,7 +81,7 @@ export class SingleHandPointer {
       hand = ranked[0]!.hand;
       this.owner = { ...owner, anchor: palm(hand), hand };
     }
-    const raw = sourceToVideo(hand.landmarks[8]!)!;
+    const raw = sourceToVideo(palm(hand))!;
     const alpha = previous === null ? 1 : 1 - Math.exp(-(t - previous) / GESTURE_PARAMETERS.smoothingMs);
     this.smooth = this.smooth ? { x: this.smooth.x + alpha * (raw.x - this.smooth.x), y: this.smooth.y + alpha * (raw.y - this.smooth.y) } : raw;
     const point = mapping.toPanel(this.smooth);
