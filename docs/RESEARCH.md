@@ -26,7 +26,7 @@
 | [React Three Fiber](https://r3f.docs.pmnd.rs/getting-started/introduction)／[包许可与依赖](https://github.com/pmndrs/react-three-fiber/blob/master/packages/fiber/package.json) | Three.js 的 React 渲染层，MIT；需匹配 React 主版本 | 已有 React 应用增加 3D 时优先评估稳定配对版本，不盲目使用 alpha |
 | [perspective-transform](https://github.com/jlouthan/perspective-transform)／[MIT 许可](https://github.com/jlouthan/perspective-transform/blob/master/LICENSE) | 四角正反投影及矩阵，无运行时依赖 | 桌面对齐优先候选；代码较旧，需 TypeScript 适配、数值及退化输入测试 |
 
-Vite／React／TypeScript 作为基础工具链，创建工程时固定相容的稳定版本与锁文件。[Vite 官方指南](https://vite.dev/guide/)列出 Node 版本要求；不要让两人各自安装不同的浮动依赖后再合并。当前未创建依赖清单，也未宣称某一包组合已构建通过。
+Vite／React／TypeScript 作为基础工具链。[Vite 官方指南](https://vite.dev/guide/)列出 Node 版本要求；不要让两人各自安装不同的浮动依赖后再合并。S0 已用 npm registry 元数据核对版本／引擎／peer 要求，并固定 Vite 8.3.5、React 19.3.1、TypeScript 5.9.3、Vitest 5.0.5 与单一锁文件，在 Node 24.19.0／npm 11.17.0 上通过本地检查。未选择最新 TypeScript 7，是因为 typescript-eslint 8.72.0 支持范围为 `>=4.8.4 <6.1.0`。许可与声明见[第三方说明](../THIRD_PARTY_NOTICES.md)。
 
 ## 3. 完整项目与接近效果的参考
 
@@ -52,7 +52,7 @@ Vite／React／TypeScript 作为基础工具链，创建工程时固定相容的
 - [Poly Haven](https://polyhaven.com/models)提供模型、材质与 HDRI；[资产许可](https://polyhaven.com/license)为 CC0。可用于未来环境和表面材质，本次未核验到可直接套用的完整 DJ 控制台模型。
 - 初期按压、抓取、高亮和推子反馈用 CSS 动画即可。后续引入模型及动画时，按具体资产检查许可、来源和浏览器性能，不把网站通用条款等同于所有资源的许可。
 
-实际引入时登记：项目／资源名称、原始 URL、固定版本或提交、模型／资产摘要、许可证、保留的声明、修改说明和验证结果。需要时新增第三方声明文件；本轮没有导入第三方源码、模型或素材。
+实际引入时登记：项目／资源名称、原始 URL、固定版本或提交、模型／资产摘要、许可证、保留的声明、修改说明和验证结果。S0 已引入基础 npm 依赖并保留运行时许可；没有导入上述参考项目源码、手部模型或媒体素材。
 
 ## 5. 几何、交互与浏览器限制
 

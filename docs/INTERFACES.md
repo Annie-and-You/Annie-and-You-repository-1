@@ -1,8 +1,8 @@
 # 共享接口草案 v0.1
 
-状态日期：2026-10-24。**以下是设计契约，尚无实现或代码类型文件。** S0 只落实当前阶段需要的部分；透视、滤波和双手阶段逐步扩展，不提前制作全部功能。
+状态日期：2026-10-24。**S0 已在 [src/shared/contracts.ts](../src/shared/contracts.ts) 落实追踪与单曲音频基础契约；其余章节仍含未来阶段草案。** 已落地：`Landmark`、`Size`、`HandObservation`、`TrackingFrame`、不含滤波的 `AudioCommand`／`AudioState`、`PlaybackStatus` 和 `AudioEngine` 类型。音频类型存在不表示引擎实现已完成。
 
-代码建立后，共享类型集中在计划中的 `src/shared/contracts.ts`，此文档解释语义。接口修改须同步更新代码类型、生产者、消费者、相关测试及本文件，并检查其他模块影响。
+共享代码类型是已实现部分的事实来源，此文档解释语义。`VideoPoint`、`PanelPoint`、面板映射、交互事件、滤波等按对应阶段落实，不提前制作全部功能。接口修改须同步更新类型、生产者、消费者、相关测试及本文件，并检查其他模块影响。
 
 ## 1. 坐标、时间和数值约定
 
@@ -45,6 +45,8 @@ interface TrackingFrame {
 `frameId` 标识当前追踪服务产生的帧；旧会话、已停止 Worker 或过期请求的返回不得进入新会话。`receivedAtMs` 由主线程收到结果时填写。
 
 没有手时发出 `hands: []`，而不是重复上一帧关键点。没有返回也需要观察超时，避免摄像头或 Worker 停止后抓取永久持续。
+
+S0 的 `createMockTrackingFrame(frameId, sampledAtMs, handCount)` 提供零／一／两只手的独立样本，每手 21 点，源尺寸为 1280×720。`receivedAtMs = sampledAtMs`、`inferenceMs = 0`、左右分类分数为 1 都是模拟值，不代表真实检测置信度、分辨率或性能；真实适配器需在 S1 独立实现。
 
 摄像头、模型各自提供开始／停止状态与可恢复错误，不混入关键点数组。初始化、权限拒绝、摄像头占用、模型失败和 Worker 失败应可区分，音频模块不订阅这些设备细节。
 

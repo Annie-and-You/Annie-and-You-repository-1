@@ -1,0 +1,8 @@
+node_modules/
+dist/
+coverage/
+.cache/
+.superpowers/
+*.local
+handoff-*.md
+.DS_Store

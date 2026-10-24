@@ -4,9 +4,9 @@
 
 ## 当前状态
 
-截至 2026-10-24，仓库处于**启动文档阶段**：已建立需求、架构、接口草案、协作规范和研究记录，尚未实现应用代码，也没有完成摄像头或音频实机验证。
+截至 2026-10-24，**S0 工程基础已实现，协作验收待另一位开发者复现**。已建立 Vite／React／TypeScript 工程、基础共享类型、模拟手部输入实验台、数据测试与检查命令。
 
-目前没有 `package.json`、可运行网页或应用测试。下文描述的是已确定的目标与实施顺序，不是已交付功能。工程初始化后，再补充实际可用的安装、启动、测试和构建命令。
+当前页面可以选择零／一／两只模拟手、生成下一帧、查看骨架和样本数据、重置。样本明确标注为模拟输入，性能显示“未测量”。尚未接入真实摄像头、MediaPipe 或音频，也没有摄像头／声音实机验收结果。下文“最终目标”仍是后续开发目标。
 
 ## 最终目标
 
@@ -34,7 +34,7 @@
 
 ## 技术方向与本地处理
 
-计划采用 Vite、React、TypeScript、MediaPipe Tasks Vision、DOM/CSS、Canvas 2D 和 Web Audio API。桌面透视先用平面映射实现；有明确视觉需求后再引入 Three.js／React Three Fiber。当前单曲功能不依赖 Tone.js。
+已采用 Vite、React 和 TypeScript；S0 用 SVG 展示离散模拟骨架。后续按计划接入 MediaPipe Tasks Vision、Canvas 2D 和 Web Audio API。桌面透视先用平面映射实现；有明确视觉需求后再引入 Three.js／React Three Fiber。当前不依赖 Tone.js。
 
 摄像头图像、手部识别和音乐处理均在本地完成。运行时不上传媒体、不申请麦克风；模型和 WASM 与应用资源一起本地提供。首次安装依赖、取得模型等开发准备仍可能需要联网。本地开发服务器用于提供网页资源，不是音乐上传服务器。
 
@@ -47,7 +47,36 @@ git clone https://github.com/Annie-and-You/Annie-and-You-repository-1.git
 cd Annie-and-You-repository-1
 ```
 
-克隆后先阅读文档。当前应用尚不可启动；不要将计划中的 npm 命令或功能当作已经存在。
+克隆后先确认所在分支包含 S0 工程：初始提交 `155ecdb` 只有文档。开发中的分支、提交与同步状态见最新交接文件；合并后可直接使用包含 S0 的 `main`。
+
+## 本地运行与检查
+
+统一使用 **Node 24.19.0、npm 11.17.0**。`.node-version`、`package.json` 和唯一的 `package-lock.json` 记录工具链；`.npmrc` 将 npm 缓存放在被忽略的 `.cache/npm`，避免依赖个人全局缓存权限。
+
+Windows 上重新执行 `npm ci` 前先停止正在运行的开发／预览服务，避免原生构建模块被进程占用。
+
+在包含 S0 工程的仓库目录运行：
+
+```sh
+npm ci
+npm run dev
+```
+
+打开终端打印的 localhost 地址，默认是 `http://localhost:5173/`。端口占用会明确失败，可用 `npm run dev -- --port 5174` 指定其他端口。页面不会申请摄像头或麦克风权限。
+
+| 命令 | 用途 |
+| --- | --- |
+| `npm run typecheck` | TypeScript 严格检查 |
+| `npm run lint` | ESLint，警告也视为失败 |
+| `npm test` | 一次性运行数据逻辑测试 |
+| `npm run test:watch` | 开发时监听测试 |
+| `npm run build` | 类型检查并构建到 `dist/` |
+| `npm run preview` | 预览已构建页面，默认 localhost 端口 4173 |
+| `npm run check` | 顺序运行类型、lint、测试和生产构建 |
+
+模拟输入位于 `src/tracking/mock-tracking.ts`，共享类型位于 `src/shared/contracts.ts`。样本按点击离散生成，不模拟实时帧率；`inferenceMs = 0` 和相等的采样／接收时间仅为模拟字段，不能当作追踪测量。
+
+S0 本地检查与 Edge 操作记录见[项目计划](docs/PROJECT_PLAN.md)。两位开发者在同一提交安装、启动和运行检查后，才能把协作验收标记为完成。
 
 ## 文档导航
 
@@ -63,8 +92,10 @@ cd Annie-and-You-repository-1
 
 两人有空时认领任务，不设完成日期、工时承诺或固定人员排期。公共接口先协调，小分支、小 PR；阶段完成或重要设计变化时更新相关文档。
 
-下一步是建立最小工程并完成 **Edge 摄像头实验**，优先证实机位、双手活动范围和追踪性能，再接入手势控件与音乐。
+下一步先由另一位开发者复现 S0，再推进 **S1 Edge 摄像头实验**，优先证实机位、双手活动范围和追踪性能。A1 音频路线可在共同基础合并后独立推进。
+
+每阶段交付后生成本地 `handoff-YYYYMMDD-HHmm.md`，记录分支／提交、完成内容、实际检查、未验证项和下一步。交接文件默认被 Git 忽略，便于跨窗口接续；正式进度仍维护在项目计划中。
 
 ## 许可说明
 
-本次文档提交未替项目原创内容选择开源许可证；仓库公开不等于已授予任意复制或再分发许可。第三方代码、模型与素材按各自许可处理，实际引入时保留来源、许可证及要求的声明，详见[研究记录](docs/RESEARCH.md)。
+项目原创内容尚未选择开源许可证；仓库公开不等于已授予任意复制或再分发许可。已引入依赖的版本、来源和许可见[第三方说明](THIRD_PARTY_NOTICES.md)，运行时声明随构建复制到 `dist/THIRD_PARTY_NOTICES.txt`。后续代码、模型与素材按各自许可处理，详见[研究记录](docs/RESEARCH.md)。
