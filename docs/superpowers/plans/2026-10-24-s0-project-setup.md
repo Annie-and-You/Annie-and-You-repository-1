@@ -48,12 +48,12 @@
 - Consumes: documented `Landmark`, `Size`, `HandObservation`, `TrackingFrame`, `AudioCommand`, `AudioState`, `AudioEngine` semantics.
 - Produces: these types in `src/shared/contracts.ts`; `createMockTrackingFrame(frameId: number, sampledAtMs: number, handCount: 0 | 1 | 2): TrackingFrame`.
 
-- [ ] Configure exact compatible dependencies and npm scripts: `dev`, `typecheck`, `lint`, `test`, `test:watch`, `build`, `preview`, `check`.
-- [ ] Write tests before mock implementation: zero hands has empty array; one/two hands have distinct 21-point observations; every x/y is finite and in 0..1; timestamps and frame ID propagate; generating later frames does not mutate previous frames. These catch stale hands, wrong point counts and shared mutable fixtures.
-- [ ] Run `npm test` and observe failure because the module is missing.
-- [ ] Implement shared types and the smallest deterministic fixture generator. Samples use zero synthetic inference duration and explicitly documented synthetic timestamps; UI must not treat them as performance measurements.
-- [ ] Run `npm test`; expect all data tests to pass.
-- [ ] Run typecheck, lint and tests; inspect lockfile and staged diff before committing.
+- [x] Configure exact compatible dependencies and npm scripts: `dev`, `typecheck`, `lint`, `test`, `test:watch`, `build`, `preview`, `check`.
+- [x] Write tests before mock implementation: zero hands has empty array; one/two hands have distinct 21-point observations; every x/y is finite and in 0..1; timestamps and frame ID propagate; generating later frames does not mutate previous frames. These catch stale hands, wrong point counts and shared mutable fixtures.
+- [x] Run `npm test` and observe failure because the module is missing.
+- [x] Implement shared types and the smallest deterministic fixture generator. Samples use zero synthetic inference duration and explicitly documented synthetic timestamps; UI must not treat them as performance measurements.
+- [x] Run `npm test`; expect all data tests to pass.
+- [x] Run typecheck, lint and tests; inspect lockfile and staged diff before committing.
 
 ### Task 2: Runnable workbench and delivery
 
@@ -63,13 +63,13 @@
 - Consumes: Task 1 types and `createMockTrackingFrame`.
 - Produces: a local React page for selecting zero/one/two hands, generating the next sample and resetting. Only explicit user actions change samples; no whole-tree per-frame loop.
 
-- [ ] Implement a focused responsive workbench: source marked simulated, skeleton preview, sample ID, hand count, and status of future camera/audio modules. No fake implemented DJ controls or permissions requests.
-- [ ] Browser-check select two hands → next frame → zero hands → reset; confirm no stale skeleton, no console errors, keyboard access and no horizontal overflow at narrow widths.
-- [ ] Run `npm ci`, then `npm run check` (typecheck + lint + tests + production build). Expect exit 0; verify dev and built preview respond successfully.
-- [ ] Update docs with actual commands, fixed versions, module boundaries and verification limits. Keep S0 “待验证” until the other developer has reproduced the same commit.
-- [ ] Record the requirement to generate a handoff after each phase in AGENTS and the plan; check relative links and `git diff --check`.
-- [ ] Review the whole branch once, fix important findings, and commit verified files explicitly.
-- [ ] Generate the local handoff with current branch/commit, work completed, exact checks, remaining second-device verification, next S1 task and environment notes.
+- [x] Implement a focused responsive workbench: source marked simulated, skeleton preview, sample ID, hand count, and status of future camera/audio modules. No fake implemented DJ controls or permissions requests.
+- [x] Browser-check select two hands → next frame → zero hands → reset; confirm no stale skeleton, no console errors, keyboard access and no horizontal overflow at narrow widths.
+- [x] Run `npm ci`, then `npm run check` (typecheck + lint + tests + production build). Expect exit 0; verify dev and built preview respond successfully.
+- [x] Update docs with actual commands, fixed versions, module boundaries and verification limits. Keep S0 “待验证” until the other developer has reproduced the same commit.
+- [x] Record the requirement to generate a handoff after each phase in AGENTS and the plan; check relative links and `git diff --check`.
+- [x] Review the whole branch once, fix important findings, and commit verified files explicitly.
+- [x] Generate the local handoff with current branch/commit, work completed, exact checks, remaining second-device verification, next S1 task and environment notes.
 
 ## Acceptance boundary
 
