@@ -87,6 +87,7 @@ S0 本地检查与 Edge 操作记录见[项目计划](docs/PROJECT_PLAN.md)。�
 | [架构设计](docs/ARCHITECTURE.md) | 模块边界、数据流、坐标映射和生命周期 |
 | [接口草案](docs/INTERFACES.md) | 数据结构、事件、控制指令、坐标与单位 |
 | [研究记录](docs/RESEARCH.md) | 技术来源、相似项目、许可证和待验证事项 |
+| [交接记录](docs/handoffs/README.md) | 用户要求共享的脱敏阶段与会话快照 |
 
 ## 协作与下一步
 

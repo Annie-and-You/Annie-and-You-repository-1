@@ -5,4 +5,5 @@ coverage/
 .superpowers/
 *.local
 handoff-*.md
+!docs/handoffs/*.md
 .DS_Store
