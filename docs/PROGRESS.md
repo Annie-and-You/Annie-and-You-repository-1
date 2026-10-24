@@ -6,7 +6,7 @@
 
 - 本轮：Codex 已交付 S2 单手按钮与推子的软件实现，涉及 `src/interaction/`、`src/controls/`、实验台界面、共享交互契约和相关文档；待真人验收，不实现音频与透视。
 - 本地分支：`codex/s2-pinch-controls`，基于 S1 的 `1bb5ad7`；S1 源于 `origin/codex/s0-project-setup` 的 `4ca8c11`。保持当前工作目录，沿用上一轮串行开发方式。
-- S1 软件交付提交：`bd6a12b`；S2 交付定位为本分支的 `feat: add single-hand pinch control lab` 提交，具体提交号以 Git 和本轮根目录阶段快照核对；均未推送。
+- S1 软件交付提交：`bd6a12b`；S2 软件交付提交：`1625c02`（`feat: add single-hand pinch control lab`）；均未推送。当前 HEAD 以 Git 和根目录本轮阶段快照核对，可能包含后续文档记录提交。
 - 最近核对远端：2026-10-24（Asia/Hong_Kong），`main` 为 `155ecdb`，S0 为 `4ca8c11`。尚未合并基础分支；本轮在其上串行开发，不开启共享文件的并行修改。
 - 用户要求：将进度记忆独立维护在仓库内，不再写进 README；本轮前端按 frontend-design 的方法重做。
 - 现有根目录会话交接文件是用户提供的资料，保留原样；旧工作副本路径不适用于当前仓库。
