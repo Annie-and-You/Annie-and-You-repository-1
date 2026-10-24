@@ -52,7 +52,9 @@ Vite／React／TypeScript 作为基础工具链。[Vite 官方指南](https://vi
 - [Poly Haven](https://polyhaven.com/models)提供模型、材质与 HDRI；[资产许可](https://polyhaven.com/license)为 CC0。可用于未来环境和表面材质，本次未核验到可直接套用的完整 DJ 控制台模型。
 - 初期按压、抓取、高亮和推子反馈用 CSS 动画即可。后续引入模型及动画时，按具体资产检查许可、来源和浏览器性能，不把网站通用条款等同于所有资源的许可。
 
-实际引入时登记：项目／资源名称、原始 URL、固定版本或提交、模型／资产摘要、许可证、保留的声明、修改说明和验证结果。S0 已引入基础 npm 依赖并保留运行时许可；没有导入上述参考项目源码、手部模型或媒体素材。
+实际引入时登记：项目／资源名称、原始 URL、固定版本或提交、模型／资产摘要、许可证、保留的声明、修改说明和验证结果。已引入基础 npm 依赖、MediaPipe Tasks Vision 1.1.1 与官方 Hand Landmarker float16 v1 模型，版本、摘要与许可见 [第三方说明](../THIRD_PARTY_NOTICES.md)。没有导入参考 DJ 项目源码或媒体素材。
+
+S1 使用安装包提供的 module WASM loader，`FilesetResolver.forVisionTasks(localPath, true)` 适配 module Worker；源代码类型已核对该参数。配置与生命周期按 [官方 Web 指南](https://developers.google.com/edge/mediapipe/solutions/vision/hand_landmarker/web_js) 实现。CPU／GPU 对照需记录实际启用的后端；降级初始化耗时不混入 CPU 推理统计。软件与设备验证结果统一记入 [进度文件](PROGRESS.md)，不把官方 Pixel 6 基准当成本机成绩。
 
 ## 5. 几何、交互与浏览器限制
 

@@ -17,7 +17,7 @@ export function TrackingPreview({ frame }: { frame: TrackingFrame | null }) {
   return (
     <div className="tracking-preview">
       <div className="preview-topline" aria-hidden="true">
-        <span><span className="preview-dot" /> SAMPLE VIEW</span>
+        <span><span className="preview-dot" /> 模拟样本</span>
         <span>镜像预览</span>
       </div>
       <svg
@@ -28,8 +28,8 @@ export function TrackingPreview({ frame }: { frame: TrackingFrame | null }) {
       >
         <defs>
           <pattern id="preview-grid" width="64" height="64" patternUnits="userSpaceOnUse">
-            <path d="M 64 0 L 0 0 0 64" fill="none" stroke="#28342c" strokeWidth="1" />
-            <circle cx="0" cy="0" r="2" fill="#3b493f" />
+            <path d="M 64 0 L 0 0 0 64" fill="none" stroke="#294059" strokeWidth="1" />
+            <circle cx="0" cy="0" r="2" fill="#3f5872" />
           </pattern>
         </defs>
         <rect width={width} height={height} fill="url(#preview-grid)" />
@@ -41,7 +41,7 @@ export function TrackingPreview({ frame }: { frame: TrackingFrame | null }) {
         {/* 原始关键点只在此镜像一次，文字与控件在 SVG 外。 */}
         <g transform={`translate(${width} 0) scale(-1 1)`}>
           {frame?.hands.map((hand, handIndex) => {
-            const color = hand.handedness === 'Left' ? '#d6f77c' : '#f4a97b';
+            const color = hand.handedness === 'Left' ? '#ffd487' : '#80d7ff';
             return (
               <g key={handIndex}>
                 {connections.map((chain, index) => (

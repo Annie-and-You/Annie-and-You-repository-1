@@ -7,3 +7,6 @@ coverage/
 handoff-*.md
 !docs/handoffs/*.md
 .DS_Store
+public/tracking/
+output/
+.playwright-cli/

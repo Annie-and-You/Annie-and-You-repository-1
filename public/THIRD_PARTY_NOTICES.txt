@@ -1,5 +1,17 @@
 Gesture DJ - third-party runtime notices
 
+MediaPipe Tasks Vision 1.1.1 (JavaScript / WebAssembly)
+Copyright The MediaPipe Authors.
+Source: https://github.com/google-ai-edge/mediapipe
+License: Apache License 2.0; full license and upstream supplemental notices:
+licenses/mediapipe-LICENSE.txt
+
+Hand Landmarker model: hand_landmarker / float16 / 1, unmodified.
+Source: https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task
+SHA-256: fbc2a30080c3c557093b5ddfc334698132eb341044ccee322ccf8bcf3607cde1
+Model card (Apache-2.0): https://storage.googleapis.com/mediapipe-assets/Model%20Card%20Hand%20Tracking%20%28Lite_Full%29%20with%20Fairness%20Oct%202021.pdf
+The model and MediaPipe package are used without modifications.
+
 React 19.3.1, React DOM 19.3.1, Scheduler 0.28.0
 Source: https://github.com/facebook/react
 These packages are used without modifications.

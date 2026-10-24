@@ -46,7 +46,11 @@ interface TrackingFrame {
 
 没有手时发出 `hands: []`，而不是重复上一帧关键点。没有返回也需要观察超时，避免摄像头或 Worker 停止后抓取永久持续。
 
-S0 的 `createMockTrackingFrame(frameId, sampledAtMs, handCount)` 提供零／一／两只手的独立样本，每手 21 点，源尺寸为 1280×720。`receivedAtMs = sampledAtMs`、`inferenceMs = 0`、左右分类分数为 1 都是模拟值，不代表真实检测置信度、分辨率或性能；真实适配器需在 S1 独立实现。
+`createMockTrackingFrame(frameId, sampledAtMs, handCount)` 提供零／一／两只手的独立样本，每手 21 点，源尺寸为 1280×720。`receivedAtMs = sampledAtMs`、`inferenceMs = 0`、左右分类分数为 1 都是模拟值，不代表真实检测置信度、分辨率或性能。
+
+S1 Worker 使用同一个 `TrackingFrame` 契约；内部消息类型在 [worker-protocol.ts](../src/tracking/worker-protocol.ts)。主线程只发送一个在途 `ticket`，记录采样时间与视频尺寸；Worker 返回手部数据和内部推理时长，接收时间由主线程填写。票据不在闸门重置后复用；每轮使用新 Worker，关闭后不接受旧消息。GPU 运行失败发送带票据的 `fallback`，丢弃该帧，CPU 从新一轮统计开始。
+
+`TrackingConfig` 只含 `delegate: 'GPU' | 'CPU'`、`numHands: 1 | 2`；它是追踪模块内部配置，不扩展音频契约。`TrackingStatus` 的低频状态与 `DiagnosticSnapshot` 聚合统计见 [tracking-session.ts](../src/tracking/tracking-session.ts) 与 [diagnostics.ts](../src/tracking/diagnostics.ts)。返回帧比例与累计有效频率的定义见 README，不把左右分类分数当有效率。
 
 摄像头、模型各自提供开始／停止状态与可恢复错误，不混入关键点数组。初始化、权限拒绝、摄像头占用、模型失败和 Worker 失败应可区分，音频模块不订阅这些设备细节。
 
