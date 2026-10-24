@@ -20,6 +20,31 @@ export interface TrackingFrame {
   readonly inferenceMs: number;
 }
 
+export type VideoPoint = Readonly<{ x: number; y: number }>;
+export type PanelPoint = Readonly<{ u: number; v: number }>;
+export type VideoRect = Readonly<{ x: number; y: number; width: number; height: number }>;
+export type PanelRect = Readonly<{ u: number; v: number; width: number; height: number }>;
+
+export interface SurfaceMapping {
+  toVideo(point: PanelPoint): VideoPoint | null;
+  toPanel(point: VideoPoint): PanelPoint | null;
+}
+
+export type CancelReason = 'tracking-lost' | 'ambiguous-hand' | 'mapping-changed' | 'input-takeover' | 'session-stopped';
+export type InteractionPointerEvent = Readonly<{
+  pointerId: string;
+  source: 'hand' | 'mouse';
+  tMs: number;
+} & ({ phase: 'hover' | 'down' | 'move' | 'up'; point: PanelPoint } | { phase: 'cancel'; reason: CancelReason })>;
+
+export type ControlId = 'test-a' | 'test-b' | 'level';
+export type ControlLayout = readonly Readonly<{
+  id: ControlId;
+  kind: 'button' | 'fader';
+  bounds: PanelRect;
+  enabled: boolean;
+}>[];
+
 /** A1 只实现单曲播放与音量；滤波在 S4 同步扩展。 */
 export type AudioCommand =
   | { readonly type: 'setPlayback'; readonly playing: boolean }

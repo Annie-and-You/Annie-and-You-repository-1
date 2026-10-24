@@ -6,6 +6,7 @@ import { TrackingSession, type TrackingStatus } from '../tracking/tracking-sessi
 import type { Delegate } from '../tracking/worker-protocol';
 import { drawTracking } from './draw-tracking';
 import { TrackingPreview } from './TrackingPreview';
+import { InteractionLab, type InteractionLabHandle } from './InteractionLab';
 
 const initialStatus: TrackingStatus = { status: 'stopped', delegate: 'GPU', numHands: 2, fallback: false, hands: 0, metrics: null, error: null };
 const number = (value: number | null | undefined, unit = '', digits = 0) => value === null || value === undefined ? '—' : `${value.toFixed(digits)}${unit}`;
@@ -32,12 +33,15 @@ export function CameraExperiment() {
   const sampleIndex = useRef(0);
   const video = useRef<HTMLVideoElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
+  const interaction = useRef<InteractionLabHandle>(null);
+  const [surfaceHost, setSurfaceHost] = useState<HTMLDivElement | null>(null);
   const camera = useRef(new CameraSession());
   const tracker = useRef<TrackingSession | null>(null);
   const generation = useRef(0);
   const busy = requesting || status.status === 'loading' || status.status === 'running';
 
   const release = useCallback(() => {
+    interaction.current?.cancel('session-stopped');
     tracker.current?.stop();
     generation.current++;
     tracker.current = null;
@@ -75,7 +79,11 @@ export function CameraExperiment() {
       setSettings({ ...actual, width: video.current.videoWidth || actual.width || 0, height: video.current.videoHeight || actual.height || 0 });
       setRequesting(false);
       const session = new TrackingSession(video.current, { delegate, numHands }, {
-        frame(frame) { if (current === generation.current && canvas.current) drawTracking(canvas.current, frame); },
+        frame(frame) {
+          if (current !== generation.current) return;
+          if (canvas.current) drawTracking(canvas.current, frame);
+          interaction.current?.frame(frame);
+        },
         state(next) {
           if (current !== generation.current) return;
           setStatus(next);
@@ -118,12 +126,14 @@ export function CameraExperiment() {
           <div className="camera-view" hidden={mode !== 'camera'} style={{ aspectRatio: settings?.width && settings.height ? `${settings.width} / ${settings.height}` : '16 / 9' }}>
             <video ref={video} muted playsInline aria-label="镜像摄像头画面" />
             <canvas ref={canvas} aria-label="手部骨架与食指尖位置" role="img" />
+            <div className="interaction-host" ref={setSurfaceHost} />
             <div className="view-label"><span>镜像画面</span><span>{settings?.width ? `${settings.width} × ${settings.height}` : '等待视频输入'}</span></div>
-            {!busy && <div className="camera-empty"><div className="capture-symbol" aria-hidden="true"><span /><i /><b /><em /></div><h2>{status.status === 'error' ? '先检查摄像头连接' : '你的动作，从这里开始'}</h2><p>{status.status === 'error' ? '根据下方提示处理，再重新开启。' : '开启摄像头，让双手完整进入画面。'}</p><span className="privacy-tag">仅本地处理，无需录制</span></div>}
+            {!busy && <div className="camera-empty"><div className="capture-symbol" aria-hidden="true"><span /><i /><b /><em /></div><h2>{status.status === 'error' ? '先检查摄像头连接' : '你的动作，从这里开始'}</h2><p>{status.status === 'error' ? '根据下方提示处理，再重新开启。' : '开启摄像头，先让一只手完整进入画面。'}</p><span className="privacy-tag">仅本地处理，无需录制</span></div>}
             <div className="view-legend"><span><i /> 手部骨架</span><span><i /> 食指尖</span><span>最多 {numHands} 只手</span></div>
           </div>
           {mode === 'mock' && <TrackingPreview frame={mockFrame} />}
           <div className="workspace-message" role="status"><span className="message-icon" aria-hidden="true">{status.status === 'error' && mode === 'camera' ? '!' : 'i'}</span><p>{mode === 'mock' ? '模拟样本只检查骨架与界面，不代表真实识别表现。' : status.error ?? notice}</p></div>
+          {mode === 'camera' && <InteractionLab ref={interaction} host={surfaceHost} enabled={running} sourceSize={{ width: settings?.width || 1280, height: settings?.height || 720 }} />}
         </div>
         <aside className="inspector" aria-label="会话诊断">
           <div className="inspector-heading"><h2>会话诊断</h2><span>每 0.5 秒更新</span></div>
@@ -131,7 +141,7 @@ export function CameraExperiment() {
           <dl className="diagnostic-list"><div><dt>实际视频</dt><dd>{mode === 'camera' && settings?.width ? `${settings.width} × ${settings.height}` : '—'}</dd></div><div><dt>设备帧率</dt><dd>{mode === 'camera' ? number(settings?.frameRate, ' fps', 1) : '—'}</dd></div><div><dt>识别配置</dt><dd>{mode === 'camera' && metrics ? `${status.delegate} / ${status.numHands} 手` : '—'}</dd></div></dl>
           <div className="performance-readout"><span>有效结果频率</span><p>{number(metrics?.validHz, '', 1)}<small>Hz</small></p><span>{mode === 'mock' ? '模拟输入不计性能' : busy ? '本轮平均值' : metrics ? '已停止，保留本轮汇总' : '开启后开始计量'}</span></div>
           <dl className="diagnostic-list performance-details"><div><dt>有效结果比例</dt><dd>{number(metrics?.validPercent, '%', 1)}</dd></div><div><dt>采样到返回 p50</dt><dd>{number(metrics?.latencyP50, ' ms')}</dd></div><div><dt>采样到返回 p95</dt><dd>{number(metrics?.latencyP95, ' ms')}</dd></div><div><dt>推理耗时 p95</dt><dd>{number(metrics?.inferenceP95, ' ms')}</dd></div><div><dt>已返回帧</dt><dd>{metrics?.processed ?? '—'}</dd></div></dl>
-          <p className="measurement-note">有效结果要求配置数量的手均有完整、有限且在画面内的 21 点。比例按已返回帧计算；忙时跳过旧帧。软件耗时不等于动作到声音的延迟。</p>
+          <p className="measurement-note">有效结果要求配置数量的手均有完整、有限且在画面内的 21 点。单手交互可用时，双手诊断比例仍可能为 0。比例按已返回帧计算；忙时跳过旧帧。软件耗时不等于动作到声音的延迟。</p>
         </aside>
       </div>
       {mode === 'camera' ? <div className="camera-controls"><div className="configuration">

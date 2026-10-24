@@ -10,13 +10,13 @@ export default function App() {
       </header>
       <main id="main">
         <div className="page-heading">
-          <div><h1>让双手进入画面。</h1><p className="intro">先找到舒服的机位，再让音乐跟上你的动作。</p></div>
-          <div className="experiment-label"><span aria-hidden="true">⌁</span><p>摄像头实验<small>检查画面、手部与追踪表现</small></p></div>
+          <div><h1>捏合，让控件回应。</h1><p className="intro">先用一只手，试试按钮和推子的手感。</p></div>
+          <div className="experiment-label"><span aria-hidden="true">⌁</span><p>单手交互实验<small>指向、捏合、移动、松开</small></p></div>
         </div>
         <CameraExperiment />
         <section className="next-note" aria-label="实验说明">
-          <div><span className="note-icon" aria-hidden="true">◎</span><p><strong>让手腕和全部指尖都入镜</strong><span>在正常室内光下试试单手、双手和完整的拖动轨迹。调整屏幕角度，找到自然的操作范围。</span></p></div>
-          <p className="scope-note">本页验证摄像头与手部追踪。<br />音乐、捏合控件和桌面对齐尚未接入。</p>
+          <div><span className="note-icon" aria-hidden="true">◎</span><p><strong>先张开，再捏合</strong><span>让手腕和全部指尖入镜。按钮在原区域内松开生效；抓住推子后可移出控件，停止或丢手会释放抓取。</span></p></div>
+          <p className="scope-note">当前为二维单手实验。<br />音乐、桌面透视与双手独立控制尚未接入。</p>
         </section>
       </main>
       <footer className="page-footer"><span>Gesture DJ / 动作实验室</span><a href={`${import.meta.env.BASE_URL}THIRD_PARTY_NOTICES.txt`} target="_blank" rel="noreferrer">第三方许可</a></footer>

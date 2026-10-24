@@ -1,8 +1,8 @@
 # 共享接口草案 v0.1
 
-状态日期：2026-10-24。**S0 已在 [src/shared/contracts.ts](../src/shared/contracts.ts) 落实追踪与单曲音频基础契约；其余章节仍含未来阶段草案。** 已落地：`Landmark`、`Size`、`HandObservation`、`TrackingFrame`、不含滤波的 `AudioCommand`／`AudioState`、`PlaybackStatus` 和 `AudioEngine` 类型。音频类型存在不表示引擎实现已完成。
+状态日期：2026-10-24。**[src/shared/contracts.ts](../src/shared/contracts.ts) 已落实追踪、S2 矩形映射／交互事件和单曲音频基础契约；透视与滤波章节仍含未来阶段草案。** 音频类型存在不表示引擎实现已完成。
 
-共享代码类型是已实现部分的事实来源，此文档解释语义。`VideoPoint`、`PanelPoint`、面板映射、交互事件、滤波等按对应阶段落实，不提前制作全部功能。接口修改须同步更新类型、生产者、消费者、相关测试及本文件，并检查其他模块影响。
+共享代码类型是已实现部分的事实来源，此文档解释语义。已实现 `VideoPoint`、`PanelPoint`、`VideoRect`、`PanelRect`、`SurfaceMapping`、`InteractionPointerEvent`、`CancelReason`、`ControlId` 和 `ControlLayout`；`CalibrationState` 与滤波按后续阶段落实。接口修改须同步更新类型、生产者、消费者、相关测试及本文件，并检查其他模块影响。
 
 ## 1. 坐标、时间和数值约定
 
@@ -75,6 +75,8 @@ interface CalibrationState {
 
 矩形阶段四角形成矩形；透视阶段使用四角计算正反投影。渲染和命中必须使用同一份映射，不能分别维护近似变换。
 
+S2 使用 [rect-mapping.ts](../src/interaction/rect-mapping.ts) 的 `createRectMapping(VideoRect): SurfaceMapping | null`。`VideoRect` 的 `x/y/width/height` 位于镜像视频归一化坐标，范围内有效矩形生成同一正反映射；`toPanel` 不钳制边界。`sourceToVideo` 仅做一次 x 镜像并拒绝越界源点；`clientToVideo` 按实际视频尺寸排除 `object-fit: contain` 黑边，捕获期间允许鼠标超出内容区域。SVG 使用相同源宽高和 `xMidYMid meet`。
+
 `null` 表示该映射无法产生有效坐标，不能用上一次位置继续操作。四角交叉、退化或过度压扁时拒绝新校准，保留之前有效状态；尚无有效状态时不启用手势控件。
 
 鼠标编辑校准时先取消全部抓取；变更后重新激活。用户调整机位需主动重新确认／校准。相机或视频尺寸变化使旧状态需要重新确认；仅窗口变化重算 CSS 映射，并取消抓取以避免跳值。持久化校准只存本地，不代表系统能自动发现摄像机移动。
@@ -82,7 +84,6 @@ interface CalibrationState {
 ## 4. 交互事件与控件
 
 ```ts
-type PointerPhase = "hover" | "down" | "move" | "up" | "cancel";
 type CancelReason =
   | "tracking-lost"
   | "ambiguous-hand"
@@ -90,14 +91,14 @@ type CancelReason =
   | "input-takeover"
   | "session-stopped";
 
-interface InteractionPointerEvent {
+type InteractionPointerEvent = Readonly<{
   pointerId: string;
   source: "hand" | "mouse";
-  phase: PointerPhase;
   tMs: number;
-  point?: PanelPoint; // cancel 可无位置；其余阶段必须有有效位置
-  reason?: CancelReason; // cancel 必填
-}
+} & (
+  | { phase: "hover" | "down" | "move" | "up"; point: PanelPoint }
+  | { phase: "cancel"; reason: CancelReason }
+)>;
 ```
 
 键盘不需要伪造二维指针；通过控件动作产生相同的音频指令。`pointerId` 仅在当前会话中区分输入，不是跨会话身份或个人标识。
@@ -112,6 +113,12 @@ interface InteractionPointerEvent {
 - 释放后保持当前参数；追踪丢失不自动暂停音乐。恢复须先张开。
 
 `ControlLayout` 至少描述控件 ID、类型、面板局部命中区域和是否可用。渲染与命中读取同一份布局。垂直推子向上增大数值；具体像素尺寸、命中扩展和手势阈值由实验确定。
+
+S2 的 [control-lab.ts](../src/controls/control-lab.ts) 输出 `LAB_LAYOUT`，当前 ID 为 `test-a`、`test-b`、`level`；每项为 `{ id, kind: 'button' | 'fader', bounds: PanelRect, enabled }`。`ControlLab.dispatch(InteractionPointerEvent)` 更新只读 `snapshot`，包含按钮次数、推子值、捕获控件和最近取消原因；这些是实验数据，不是音频状态，也不隐含成功率。
+
+[pinch.ts](../src/interaction/pinch.ts) 集中初始参数：拇指尖 4 到食指尖 8 的源像素距离 / 掌宽（5 到 17）；闭合 ≤0.32 持续 60 ms，张开 ≥0.52 持续 40 ms，滞回带保持当前状态。初始张开也要稳定观察 40 ms。掌宽过小或无效时拒绝输入；平滑时间常数 45 ms，使用 `1-exp(-dt/45)`，不按固定帧数防抖。以上均为待真人调优的工程初值。
+
+[single-hand-pointer.ts](../src/interaction/single-hand-pointer.ts) 只保留一个当前掌部关联，以邻近距离和高可信左右分类辅助；不以数组顺序当身份。首次多手不激活、近似候选不明确则取消。多手变为少手时，若剩余候选可能继承原抓取则保守取消，即使实际离开的是旁观手；代价是需多一次张开确认。结果年龄或相邻采样间隔超过 150 ms、无完整有效手、源尺寸改变都会取消；重复或倒序帧忽略。停止、窗口缩放、面板调整和实体输入接管由界面主动取消。重新取得手后必须重新观察张开。这是保守单手实验，不能作为 S5 双手身份实现。
 
 双手阶段增加独立指针状态及 `controlId → pointerId` 的占用关系：每指针最多抓一个控件，每控件最多一个所有者。事件按时间处理，同帧冲突使用稳定的指针标识顺序。第二只手不能抢占；身份不明确时取消相关指针，一只手丢失不取消另一只手。
 
